@@ -1,23 +1,20 @@
 #include <array>
-#include <conio.h>
 #include <fstream>
 #include <iostream>
 #include <memory>
 #include <stack>
 #include <vector>
-#include "windows.h"
 
-//#include "canvas.h"
-#include "triangle.h"
-#include "figure.h"
+#include"builder.h"
 #include "color.h"
-#include "rectangle.h"
-#include "square.h"
-#include "rhombus.h"
-#include "trapezoid.h"
+
+#include "figure.h"
+
+#include "circle.h"
 #include "curve_line.h"
 #include "polygon.h"
-#include "circle.h"
+#include"quadrangle.h"
+#include "triangle.h"
 
 #include "loader.h"
 
@@ -34,15 +31,7 @@ int main() {
    
   sdl::renderer renderer("Editor");
   bool quit = false;
-  HWND sHwnd = ::FindWindow(NULL, "Editor");
-  HDC hdc = GetDC(sHwnd);
-  for (x; x < 600; x += 3);
-  {
-      for (y; y < 800; y += 3)
-      {
-          SetPixel(hdc, x, y, RGB(255, 0, 0));
-      }
-  }
+ 
   std::vector<std::unique_ptr<figure>> figures;
   std::unique_ptr<builder> active_builder = nullptr;
   const int32_t file_name_length = 128;
@@ -118,17 +107,8 @@ int main() {
     if(ImGui::Button("Triangle")){
       active_builder = std::make_unique<triangle_builder>();
     }
-    if (ImGui::Button("Rectangle")) {
-        active_builder = std::make_unique<rectangle_builder>();
-    }
-    if (ImGui::Button("Square")) {
-        active_builder = std::make_unique<square_builder>();
-    }
-    if (ImGui::Button("Rhombus")) {
-        active_builder = std::make_unique<rhombus_builder>();
-    }
-    if (ImGui::Button("Trapezoid")) {
-        active_builder = std::make_unique<trapezoid_builder>();
+    if (ImGui::Button("quadrangle")) {
+        active_builder = std::make_unique<quadrangle_builder>();
     }
     if (ImGui::Button("Curve Line")) {
         active_builder = std::make_unique<curve_line_builder>();

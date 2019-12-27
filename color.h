@@ -5,8 +5,6 @@
 #include <iostream>
 #include <memory>
 #include <vector>
-#include "windows.h"
-#include <conio.h>
 #include <stack>
 
 struct color {

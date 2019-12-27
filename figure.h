@@ -4,6 +4,9 @@
 #include "sdl.h"
 #include<iostream>
 #include "color.h"
+#include<vector>
+#include<array>
+
 
 struct figure {
     virtual void render(const sdl::renderer& renderer) const = 0;
@@ -28,12 +31,6 @@ struct vertex {
 
 };
 
-struct builder {
-    virtual std::unique_ptr<figure> add_vertex(const vertex& v) = 0;
-
-    virtual ~builder() = default;
-
-};
 
 std::ifstream& operator>> (std::ifstream& is, vertex& p) {
     is >> p.x >> p.y;
