@@ -21,7 +21,7 @@ private:
 
 struct quadrangle_builder : builder {
     std::unique_ptr<figure> add_vertex(const vertex& v);
-    std::string quadrangle_builder::getType();
+    std::string getType();
 
 private:
     int32_t n_ = 0;
