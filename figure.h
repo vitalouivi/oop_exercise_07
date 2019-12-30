@@ -1,39 +1,25 @@
-#ifndef FIGURE_H
-#define FIGURE_H
+
+#ifndef D_FIGURE_H
+#define D_FIGURE_H 1
+
+#include "vertex.h"
 
 #include "sdl.h"
-#include<iostream>
-#include "color.h"
-#include<vector>
-#include<array>
+#include <array>
+#include <vector>
+#include <memory>
+//#include <iostream>
+//#include <fstream>
+#include <string>
 
 
 struct figure {
-    virtual void render(const sdl::renderer& renderer) const = 0;
-    virtual void save(std::ostream& os) const = 0;
-    virtual ~figure() = default;
-    color color_{};
-    virtual void set_color(int r, int g, int b) {
-        color_.r = r;
-        color_.g = g;
-        color_.b = b;
-    }
-    virtual void set_color(color c) {
-        color_.r = c.r;
-        color_.g = c.g;
-        color_.b = c.b;
-    }
+	virtual void render(const sdl::renderer& renderer) const = 0;
+	virtual void save(std::ostream& os) const = 0;
+	virtual bool isPointInside(vertex v) const = 0;
+	virtual void setColor(std::vector<int> color) = 0;
+	virtual ~figure() = default;
 
 };
 
-struct vertex {
-    int32_t x, y;
-
-};
-
-
-std::ifstream& operator>> (std::ifstream& is, vertex& p) {
-    is >> p.x >> p.y;
-    return is;
-}
-#endif
+#endif // !D_FIGURE_H

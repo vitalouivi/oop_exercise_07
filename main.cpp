@@ -1,136 +1,161 @@
 #include <array>
-#include <fstream>
-#include <iostream>
 #include <memory>
-#include <stack>
 #include <vector>
-
-#include"builder.h"
-#include "color.h"
-
-#include "figure.h"
-
-#include "circle.h"
-#include "curve_line.h"
-#include "polygon.h"
-#include"quadrangle.h"
-#include "triangle.h"
-
-#include "loader.h"
+#include <stack>
 
 #include "sdl.h"
 #include "imgui.h"
 
+#include "quadrangle.h"
+#include "curve_line.h"
+#include "circle.h"
+#include "polygon.h"
 
+#include "color.h"
+#include "Document.h"
 
 int main() {
-    int x=0;
-    int y = 0;
-    color figure_color{};
-//    canvas c;
-   
-  sdl::renderer renderer("Editor");
-  bool quit = false;
- 
-  std::vector<std::unique_ptr<figure>> figures;
-  std::unique_ptr<builder> active_builder = nullptr;
-  const int32_t file_name_length = 128;
-  char file_name[file_name_length] = "";
-  int32_t remove_id = 0;
-  while(!quit){
-    renderer.set_color(0, 0, 0);
-    renderer.clear();
+	sdl::renderer renderer("Editor");
+	bool quit = false;
 
-    sdl::event event;
+	std::unique_ptr<builder> active_builder = nullptr;
+	bool active_deleter = false;
+	const int32_t file_name_length = 128;
+	char file_name[file_name_length] = "";
+	int32_t remove_id = 0;
+	std::vector<int> color(3);
 
-    while(sdl::event::poll(event)){
-      sdl::quit_event quit_event;
-      sdl::mouse_button_event mouse_button_event;
-      if(event.extract(quit_event)){
-        quit = true;
-        break;
-      }else if(event.extract(mouse_button_event)){
-        if(active_builder && mouse_button_event.button() == sdl::mouse_button_event::left &&
-            mouse_button_event.type() == sdl::mouse_button_event::down){
-          std::unique_ptr<figure> figure =
-            active_builder->add_vertex(vertex{mouse_button_event.x(), mouse_button_event.y()});
-          if(figure){
-              (*figure).set_color(figure_color);
-            figures.emplace_back(std::move(figure));
-            active_builder = nullptr;
-          }
-        }
-      }
-    }
+	Document currentDocument;
 
-    for(const std::unique_ptr<figure>& figure: figures){
-        
-      figure->render(renderer);
-    }
+	while (!quit) {
+		renderer.set_color(0, 0, 0);
+		renderer.clear();
 
-    ImGui::Begin("Menu");
-    if(ImGui::Button("New canvas")){
-        figures.clear();
-    }
-    ImGui::InputInt("R", &figure_color.r);
-    ImGui::InputInt("G", &figure_color.g);
-    ImGui::InputInt("B", &figure_color.b);
-    if (ImGui::Button("Red")) {
-        figure_color.set_color(255, 0, 0);
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("Green")) {
-        figure_color.set_color(0, 255, 0);
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("Blue")) {
-        figure_color.set_color(0, 0, 255);
-    }
-   
-    ImGui::InputText("File name", file_name, file_name_length - 1);
-    if(ImGui::Button("Save")){
-      std::ofstream os(file_name);
-      if(os){
-        for(const std::unique_ptr<figure>& figure: figures){
-          figure->save(os);
-        }
-      }
-    }
-    ImGui::SameLine();
-    if(ImGui::Button("Load")){
-      std::ifstream is(file_name);
-      if(is){
-         loader loader;
-         figures = loader.load(is);
-      }
-    }
-    if(ImGui::Button("Triangle")){
-      active_builder = std::make_unique<triangle_builder>();
-    }
-    if (ImGui::Button("quadrangle")) {
-        active_builder = std::make_unique<quadrangle_builder>();
-    }
-    if (ImGui::Button("Curve Line")) {
-        active_builder = std::make_unique<curve_line_builder>();
-    }
-	if (ImGui::Button("Polygon")) {
-		active_builder = std::make_unique<polygon_builder>();
+		sdl::event event;
+
+		while (sdl::event::poll(event)) {
+			sdl::quit_event quit_event;
+			sdl::mouse_button_event mouse_button_event;
+			if (event.extract(quit_event)) {
+				quit = true;
+				break;
+			} else if (event.extract(mouse_button_event)) {
+				if (active_builder && mouse_button_event.button() == sdl::mouse_button_event::left && mouse_button_event.type() == sdl::mouse_button_event::down) {
+					std::unique_ptr<figure> figure = active_builder->add_vertex(vertex{mouse_button_event.x(), mouse_button_event.y()});
+					if (figure) {
+						figure -> setColor(color);
+
+						currentDocument.addFigure(std::move(figure));
+
+						active_builder = nullptr;
+					}
+				}
+				if (active_builder && mouse_button_event.button() == sdl::mouse_button_event::right && mouse_button_event.type() == sdl::mouse_button_event::down) {
+					std::unique_ptr<figure> figure = active_builder->add_vertex(vertex{-1, -1});
+					if (figure) {
+						figure -> setColor(color);
+						
+						currentDocument.addFigure(std::move(figure));
+
+						active_builder = nullptr;
+					}
+				}
+				if (active_deleter && mouse_button_event.button() == sdl::mouse_button_event::left && mouse_button_event.type() == sdl::mouse_button_event::down) {
+					
+					currentDocument.removeByClick(vertex{mouse_button_event.x(), mouse_button_event.y()});
+
+					active_deleter = false;
+				}
+			}
+		}
+
+		currentDocument.render(renderer); 
+
+		
+
+		
+		ImGui::Begin("Menu");
+		if (ImGui::Button("New canvas")) {
+			currentDocument.clear();
+		}
+
+		ImGui::InputText("File name", file_name, file_name_length - 1);
+
+		if (ImGui::Button("Save")) {
+			std::ofstream os(file_name);
+
+			if (os) {
+				currentDocument.Save(os);
+			}
+
+		}
+
+		ImGui::SameLine();
+
+		if (ImGui::Button("Load")) {
+			std::ifstream is(file_name);
+
+			if (is) {
+				currentDocument.Load(is);
+			}
+				
+		}
+
+
+		ImGui::InputInt("R", &color[0]);
+		ImGui::InputInt("G", &color[1]);
+		ImGui::InputInt("B", &color[2]);
+		if (ImGui::Button("Red")) {
+			color[0] = 255;
+			color[1] = 0;
+			color[2] = 0;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Green")) {
+			color[0] = 0;
+			color[1] = 255;
+			color[2] = 0;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Blue")) {
+			color[0] = 0;
+			color[1] = 0;
+			color[2] = 255;
+		}
+
+		if (ImGui::Button("Quadrangle")) {
+			active_builder = std::make_unique<quadrangle_builder>();
+		}
+		if (ImGui::Button("Broken Line")) {
+			active_builder = std::make_unique<curve_line_builder>();
+		}
+		if (ImGui::Button("Circle")) {
+			active_builder = std::make_unique<circle_builder>();
+		}
+		if (ImGui::Button("Polygon")) {
+			active_builder = std::make_unique<polygon_builder>();
+		}
+
+		ImGui::InputInt("Remove id", &remove_id);
+		if (ImGui::Button("Remove")) {
+			if (remove_id >= 0 && remove_id < (currentDocument.figures).size()) {
+
+				currentDocument.removeFigure(remove_id);
+
+			}
+		}
+		if (ImGui::Button("Remove by click")) {
+			active_deleter = true;
+		}
+		if (ImGui::Button("UNDO")) {
+
+			currentDocument.undo();
+		}
+
+		ImGui::End();
+
+		renderer.present();
 	}
-    if (ImGui::Button("Circle")) {
-        active_builder = std::make_unique<circle_builder>();
-    }
 
 
-    ImGui::InputInt("Remove id", &remove_id);
-    if(ImGui::Button("Remove")){
-     
-      figures.erase(figures.begin() + remove_id);
-    }
-    if (ImGui::Button("Undo")) {
-
-    }
-    ImGui::End();
-
-    renderer.present();
-  }
 }

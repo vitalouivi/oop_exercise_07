@@ -1,4 +1,5 @@
-#pragma once
+#ifndef D_COLOR_H 
+#define D_COLOR_H 1
 
 #include <array>
 #include <fstream>
@@ -8,8 +9,10 @@
 #include <stack>
 
 struct color {
-    color() : r(255), g(0), b(0) {}
+    color();
     int32_t r, g, b;
-    color(int r_, int g_, int b_) :r(r_), g(g_), b(b_) {}
-    void set_color(int r_, int g_, int b_) { r = r_, g = g_, b = b_; }
+    color(int r_, int g_, int b_);
+    void set_color(int r_, int g_, int b_);
 };
+#endif // !D_COLOR_H 
+

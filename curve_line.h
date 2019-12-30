@@ -1,27 +1,36 @@
-#ifndef CURVELINE_H
-#define CURVELINE_H 1
+#ifndef D_CURVE_LINE_H
+#define D_CURVE_LINE_H 1
 
 #include "figure.h"
 #include "builder.h"
 
 
 struct curve_line : figure {
-    curve_line(const std::vector<vertex>& vertices);
 
-    void render(const sdl::renderer& renderer) const override;
+	curve_line(const std::vector<vertex>& vertices);
 
-    void save(std::ostream& os) const override;
+	void setColor(std::vector<int> color) override;
+	
+	void render(const sdl::renderer& renderer) const override;
+	void save(std::ostream& os) const override;
+
+
+	bool isPointInside(vertex v) const override;
 
 private:
-    std::vector<vertex> vertices_;
+	std::vector<int> color_;
+	std::vector<vertex> vertices_;
+
+
 };
 
 struct curve_line_builder : builder {
-    std::unique_ptr<figure> add_vertex(const vertex& v) override;
+	std::unique_ptr<figure> add_vertex(const vertex& v) override;
 
+	std::string getType();
 private:
-    int32_t n_ = 0;
-    std::vector<vertex> vertices_;
+	
+	std::vector<vertex> vertices_;
 
 };
 

@@ -1,42 +1,40 @@
-#include "polygon.h"
+#include "rectangle.h"
 
-polygon::polygon(const std::vector<vertex>& vertices) : vertices_(vertices) {}
+rectangle::rectangle(const std::array<vertex, 4>& vertices) : vertices_(vertices) {}
 
-std::string polygon::getType() {
-	return "polygon";
+std::string getType() {
+	return "rectangle";
 }
 
-void polygon::setColor(std::vector<int> color) {
+void rectangle::setColor(std::vector<int> color) {
 	for (int i = 0; i < 3; i++) {
 		color_.push_back(color[i]);
 	}
 }
-	
-void polygon::render(const sdl::renderer& renderer) const {
+
+void rectangle::render(const sdl::renderer& renderer) const {
 	renderer.set_color(color_[0], color_[1], color_[2]);
-	for (int32_t i = 0; i < vertices_.size() - 1; ++i) {
-		renderer.draw_line(vertices_[i].x, vertices_[i].y,
-			vertices_[(i + 1)].x, vertices_[(i + 1)].y);
+	for (int32_t i = 0; i < 4; ++i) {
+		renderer.draw_line(vertices_[i].x, vertices_[i].y, 
+			vertices_[(i + 1) % 4].x, vertices_[(i + 1) % 4].y);
 	}
-	renderer.draw_line(vertices_[vertices_.size() - 1].x, vertices_[vertices_.size() - 1].y, vertices_[0].x, vertices_[0].y);
 }
 
-void polygon::save(std::ostream& os) const {
-	os << "polygon\n";
-	os << vertices_.size() << '\n';
-	for (int32_t i = 0; i < vertices_.size(); ++i) {
+void rectangle::save(std::ostream& os) const {
+	os << "rectangle\n";
+	for (int32_t i = 0; i < 4; ++i) {
 		os << vertices_[i].x << ' ' << vertices_[i].y << '\n';
 	}
 	os << color_[0] << ' ' << color_[1] << ' ' << color_[2] << '\n';
 }
 
 
-bool polygon::isPointInside(vertex v) const {
+bool rectangle::isPointInside(vertex v) const {
 	int x = v.x;
 	int y = v.y;
 	int i1, i2, n, N, S, S1, S2, S3;
 	bool flag;
-  	N = vertices_.size();
+  	N = 4;
   	for (n = 0; n < N; n++) {
    		flag = false;
    		i1 = n < N-1 ? n + 1 : 0;
@@ -64,16 +62,15 @@ bool polygon::isPointInside(vertex v) const {
   	return flag;
 }
 
-
-std::unique_ptr<figure> polygon_builder::add_vertex(const vertex& v) {
-	if (v.x != -1 && v.y != -1) {
-		vertices_.push_back(v);
+std::unique_ptr<figure> rectangle_builder::add_vertex(const vertex& v) {
+	vertices_[n_] = v;
+	n_ += 1;
+	if(n_ != 4){
 		return nullptr;
 	}
-		
-	return std::make_unique<polygon>(vertices_);
+	return std::make_unique<rectangle>(vertices_);
 }
 
-std::string polygon_builder::getType() {
-	return "polygon";
+std::string rectangle_builder::getType() {
+	return "rectangle";
 }

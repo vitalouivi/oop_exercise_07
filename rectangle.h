@@ -1,52 +1,42 @@
-#pragma once
+#ifndef D_RECTANGLE_H
+#define D_RECTANGLE_H 1
 
-#include <array>
-#include <fstream>
-#include <iostream>
-#include <memory>
-#include <vector>
-#include "windows.h"
-#include <conio.h>
-#include <stack>
 #include "figure.h"
+#include "builder.h"
+
 
 
 struct rectangle : figure {
-    rectangle(const std::array<vertex, 4>& vertices) : vertices_(vertices) {}
+	rectangle(const std::array<vertex, 4>& vertices);
 
-    void render(const sdl::renderer& renderer) const override {
-        renderer.set_color(color_.r, color_.g, color_.b);
-        for (int32_t i = 0; i < 4; ++i) {
-            renderer.draw_line(vertices_[i].x, vertices_[i].y,
-                vertices_[(i + 1) % 4].x, vertices_[(i + 1) % 4].y);
-        }
-    }
+	std::string getType();
 
-    void save(std::ostream& os) const override {
-        os << "rectangle" << std::endl;
-        for (int32_t i = 0; i < 4; ++i) {
-            os << vertices_[i].x << ' ' << vertices_[i].y << '\n';
-        }
-        os << this->color_.r << ' ' << this->color_.g << ' ' << this->color_.b << std::endl;
-    }
+	void setColor(std::vector<int> color) override;
+
+	void render(const sdl::renderer& renderer) const override;
+
+	void save(std::ostream& os) const override;
+
+
+	bool isPointInside(vertex v) const override;
 
 private:
-    std::array<vertex, 4> vertices_;
+	std::vector<int> color_;
+	std::array<vertex, 4> vertices_;
 
 };
 
 struct rectangle_builder : builder {
-    std::unique_ptr<figure> add_vertex(const vertex& v) {
-        vertices_[n_] = v;
-        n_ += 1;
-        if (n_ != 4) {
-            return nullptr;
-        }
-        return std::make_unique<rectangle>(vertices_);
-    }
+	std::unique_ptr<figure> add_vertex(const vertex& v) override;
+
+	std::string getType();
 
 private:
-    int32_t n_ = 0;
-    std::array<vertex, 4> vertices_;
+	int32_t n_ = 0;
+	std::array<vertex, 4> vertices_;
 
 };
+
+
+
+#endif // !D_RECTANGLE_H

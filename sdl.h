@@ -36,7 +36,6 @@ private:
   SDL_Window* window_;
   SDL_Renderer* renderer_;
 
-
 };
 
 struct quit_event {

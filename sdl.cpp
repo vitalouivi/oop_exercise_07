@@ -47,7 +47,7 @@ void renderer::draw_line(int32_t x1, int32_t y1, int32_t x2, int32_t y2) const {
 }
 
 void renderer::draw_point(int32_t x, int32_t y) const {
-    SDL_RenderDrawPoint(renderer_, x, y);
+  SDL_RenderDrawPoint(renderer_, x, y);
 }
 
 void renderer::present() const {
